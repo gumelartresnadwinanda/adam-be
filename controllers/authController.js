@@ -59,6 +59,17 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   try {
+    // Check if user is already logged in
+    const tokenFromCookie = req.cookies?.[process.env.COOKIE_NAME];
+    if (tokenFromCookie) {
+      const decoded = jwt.verify(tokenFromCookie, process.env.JWT_SECRET);
+      if (decoded) {
+        return res
+          .status(400)
+          .json({ error: "Already logged in with another account" });
+      }
+    }
+
     // Find user by email
     const userQuery =
       "SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL";
@@ -255,6 +266,28 @@ async function deleteUser(req, res) {
   }
 }
 
+// Get current user details
+async function getCurrentUser(req, res) {
+  const { userId } = req.user;
+
+  try {
+    // Find user by ID
+    const userQuery =
+      "SELECT id, username, email, full_name, role FROM users WHERE id = $1 AND deleted_at IS NULL";
+    const { rows } = await pool.query(userQuery, [userId]);
+    const user = rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user });
+  } catch (err) {
+    console.error("Error in getting current user:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -262,4 +295,5 @@ module.exports = {
   editUser,
   updatePassword,
   deleteUser,
+  getCurrentUser,
 };
