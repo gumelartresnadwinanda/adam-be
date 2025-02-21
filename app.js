@@ -5,12 +5,18 @@ const adminRoutes = require("./routes/adminRoutes");
 require("dotenv").config(); // For reading environment variables
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
+const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
 const app = express();
 app.use(bodyParser.json()); // Parse incoming JSON data
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
