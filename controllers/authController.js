@@ -89,7 +89,13 @@ async function login(req, res) {
 
     // Generate JWT token
     const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
+      {
+        userId: user.id,
+        role: user.role,
+        username: user.username,
+        email: user.username,
+        full_name: user.full_name,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
