@@ -150,13 +150,24 @@ async function editUser(req, res) {
       });
     }
 
-    // Update user details in the database
+    // Prepare the update query and values
+    const updateFields = [
+      username,
+      email,
+      full_name,
+      date_of_birth || null,
+      profile_picture,
+      phone_number,
+      address,
+      timezone,
+      language_preference,
+    ];
     const updateQuery = `
       UPDATE users
       SET username = COALESCE($1, username),
           email = COALESCE($2, email),
           full_name = COALESCE($3, full_name),
-          date_of_birth = COALESCE($4, date_of_birth),
+          date_of_birth = COALESCE(NULLIF($4, '')::date, date_of_birth),
           profile_picture = COALESCE($5, profile_picture),
           phone_number = COALESCE($6, phone_number),
           address = COALESCE($7, address),
@@ -166,18 +177,7 @@ async function editUser(req, res) {
       WHERE id = $10 AND deleted_at IS NULL
       RETURNING id, username, email, full_name, date_of_birth, profile_picture, phone_number, address, timezone, language_preference
     `;
-    const { rows } = await pool.query(updateQuery, [
-      username,
-      email,
-      full_name,
-      date_of_birth,
-      profile_picture,
-      phone_number,
-      address,
-      timezone,
-      language_preference,
-      userId,
-    ]);
+    const { rows } = await pool.query(updateQuery, [...updateFields, userId]);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
