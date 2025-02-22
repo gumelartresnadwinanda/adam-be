@@ -16,6 +16,13 @@ async function register(req, res) {
     });
   }
 
+  // Validate password length
+  if (password.length < 8) {
+    return res.status(400).json({
+      error: "Password must be at least 8 characters long.",
+    });
+  }
+
   try {
     // Check if the user already exists
     const userCheckQuery =
@@ -59,17 +66,6 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   try {
-    // Check if user is already logged in
-    const tokenFromCookie = req.cookies?.[process.env.COOKIE_NAME];
-    if (tokenFromCookie) {
-      const decoded = jwt.verify(tokenFromCookie, process.env.JWT_SECRET);
-      if (decoded) {
-        return res
-          .status(400)
-          .json({ error: "Already logged in with another account" });
-      }
-    }
-
     // Find user by email
     const userQuery =
       "SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL";
@@ -206,6 +202,13 @@ async function editUser(req, res) {
 async function updatePassword(req, res) {
   const { userId } = req.user;
   const { oldPassword, newPassword } = req.body;
+
+  // Validate new password length
+  if (newPassword.length < 8) {
+    return res.status(400).json({
+      error: "New password must be at least 8 characters long.",
+    });
+  }
 
   try {
     // Find user by ID
