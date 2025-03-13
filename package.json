@@ -4,7 +4,7 @@
   "description": "project auth service backend side",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "dev": "nodemon app.js",
     "test": "jest --coverage"
   },
   "keywords": [],
