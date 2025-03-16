@@ -110,6 +110,7 @@ async function login(req, res) {
 
     res.json({
       accessToken,
+      user,
     });
   } catch (err) {
     console.error("Error in login:", err);
