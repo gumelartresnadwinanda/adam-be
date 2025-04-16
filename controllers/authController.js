@@ -100,7 +100,7 @@ async function login(req, res) {
     res.cookie(process.env.COOKIE_NAME, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 72 * 60 * 60 * 1000, // 3 day
       domain: process.env.COOKIE_DOMAIN,
       sameSite: "lax",
     });
