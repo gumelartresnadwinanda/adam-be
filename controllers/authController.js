@@ -64,14 +64,12 @@ async function register(req, res) {
 // Login user
 async function login(req, res) {
   const { email, password } = req.body;
-
   try {
     // Find user by email
     const userQuery =
       "SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL";
     const { rows } = await pool.query(userQuery, [email]);
     const user = rows[0];
-
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
@@ -100,7 +98,7 @@ async function login(req, res) {
     res.cookie(process.env.COOKIE_NAME, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 72 * 60 * 60 * 1000, // 3 day
+      maxAge: 168 * 60 * 60 * 1000, // 7 day
       domain: process.env.COOKIE_DOMAIN,
       sameSite: "lax",
     });
